@@ -1,0 +1,52 @@
+# Additive cargo-fuzz crate for the Mayhem integration. Lives under mayhem/fuzz/ and
+# is NEVER part of upstream. It depends on the UNMODIFIED minijinja crate at the repo
+# root and exposes the SAME two target names as upstream's own fuzz/ crate — `render`
+# and `add_template`.
+#
+# We ship this additive crate rather than reuse upstream fuzz/ because upstream's
+# fuzz/fuzz_targets/render.rs is STALE against minijinja 3.0.0-alpha.0: it calls
+# `tmpl.render(&value)`, but `Template::render` now takes `V: Into<Value>` and a serde
+# `Serialize` value must be wrapped in `minijinja::value::Serde`. Fixing it here (rather
+# than editing the upstream file) keeps the mayhem branch a purely-additive diff.
+#
+# The standalone [workspace] table keeps this crate out of the root workspace's
+# resolution, so the upstream manifest is never touched and cargo-fuzz writes its
+# binaries under mayhem/fuzz/target/.
+[package]
+name = "minijinja-mayhem-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+arbitrary = { version = "1", features = ["derive"] }
+libfuzzer-sys = "0.4"
+serde = { version = "1", features = ["derive"] }
+
+[dependencies.minijinja]
+path = "../../minijinja"
+features = ["json", "urlencode", "fuel"]
+
+# Keep this crate out of the upstream root workspace's resolution.
+[workspace]
+members = ["."]
+
+[profile.release]
+debug = true
+overflow-checks = true
+debug-assertions = true
+
+[[bin]]
+name = "add_template"
+path = "fuzz_targets/add_template.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "render"
+path = "fuzz_targets/render.rs"
+test = false
+doc = false

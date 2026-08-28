@@ -1,0 +1,14 @@
+# minijinja in-process libFuzzer target `add_template` (cargo-fuzz / libfuzzer-sys).
+# Fuzzes the parser + compiler: raw fuzz bytes are handed as UTF-8 template source to
+# Environment::add_template ("fuzz.txt"), exercising lexing, parsing and compilation.
+project: savantenvs/minijinja
+target: add_template
+
+cmds:
+  - cmd: /mayhem/add_template
+    libfuzzer: true
+    dictionary: /mayhem/mayhem/add_template/add_template.dict
+
+testsuite:
+  - https://$MAYHEM_DOMAIN/$MAYHEM_PROJECT/$MAYHEM_TARGET/testsuite.tar
+  - file://mayhem/add_template/testsuite

@@ -1,0 +1,14 @@
+# minijinja in-process libFuzzer target `render` (cargo-fuzz / libfuzzer-sys).
+# Fuzzes the full template pipeline: an Arbitrary-derived (root source, includes,
+# serde Value) tuple is loaded into an Environment (fuel-bounded) and rendered.
+project: savantenvs/minijinja
+target: render
+
+cmds:
+  - cmd: /mayhem/render
+    libfuzzer: true
+    dictionary: /mayhem/mayhem/render/render.dict
+
+testsuite:
+  - https://$MAYHEM_DOMAIN/$MAYHEM_PROJECT/$MAYHEM_TARGET/testsuite.tar
+  - file://mayhem/render/testsuite
