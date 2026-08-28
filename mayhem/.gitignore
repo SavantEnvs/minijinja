@@ -1,0 +1,5 @@
+# Build artifacts from the additive crates — never commit these.
+kat/target/
+fuzz/target/
+fuzz/corpus/
+fuzz/artifacts/
